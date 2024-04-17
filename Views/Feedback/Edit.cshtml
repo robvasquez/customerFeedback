@@ -1,8 +1,12 @@
 @model CustomerFeedbackSystem.Models.Feedback
 
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
 <h2>Edit Feedback</h2>
 
-<form asp-action="Edit" asp-controller="Feedback" asp-route-id="@Model.FeedbackId" method="post">
+<form id="editFeedbackForm" method="post">
     @Html.AntiForgeryToken() <!-- Add anti-forgery token to prevent CSRF -->
     
     <input type="hidden" asp-for="FeedbackId" />
@@ -23,9 +27,38 @@
         <label asp-for="SubmissionDate"></label>
         <input asp-for="SubmissionDate" class="form-control" type="date" />
     </div>
-    <button type="submit" class="btn btn-success">Save</button>
+    <button type="button" id="saveButton" class="btn btn-success">Save</button>
 </form>
 
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    <a href="@Url.Action("Index", "Feedback")" class="btn btn-secondary">Back to List</a>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#saveButton').click(function () {
+                saveFeedback();
+            });
+
+            function saveFeedback() {
+                var formData = $('#editFeedbackForm').serialize();
+                $.ajax({
+                    url: '@Url.Action("Edit", "Feedback", new { id = Model.FeedbackId })',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        // Handle success response, if needed
+                        console.log(response);
+                        // Redirect back to the list page
+                        window.location.href = '@Url.Action("Index", "Feedback")';
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle error response
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+        });
+    </script>
+}

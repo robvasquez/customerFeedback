@@ -134,3 +134,4 @@
 /Users/robvasquez/projects/creek/CustomerFeedbackSystem/obj/Debug/net8.0/CustomerFeedbackSystem.pdb
 /Users/robvasquez/projects/creek/CustomerFeedbackSystem/obj/Debug/net8.0/CustomerFeedbackSystem.genruntimeconfig.cache
 /Users/robvasquez/projects/creek/CustomerFeedbackSystem/obj/Debug/net8.0/ref/CustomerFeedbackSystem.dll
+/Users/robvasquez/projects/creek/CustomerFeedbackSystem/obj/Debug/net8.0/CustomerFeedbackSystem.sourcelink.json
