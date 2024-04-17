@@ -1,5 +1,9 @@
 @model CustomerFeedbackSystem.Models.Feedback
 
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
 <h2>Feedback Details</h2>
 
 <div>
@@ -32,7 +36,18 @@
         </dd>
     </dl>
     <div>
-        @Html.ActionLink("Edit", "Edit", new { id = Model.FeedbackId }, new { @class = "btn btn-primary" })
-        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-secondary" })
+        <button id="editButton" class="btn btn-primary">Edit</button>
+        <a href="@Url.Action("Index", "Feedback")" class="btn btn-secondary">Back to List</a>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#editButton').click(function () {
+                // Redirect to the edit page using AJAX
+                window.location.href = '@Url.Action("Edit", "Feedback", new { id = Model.FeedbackId })';
+            });
+        });
+    </script>
+}

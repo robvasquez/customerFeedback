@@ -1,5 +1,9 @@
 @model CustomerFeedbackSystem.Models.Feedback
 
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
 <h2>Delete Feedback</h2>
 
 <h3>Are you sure you want to delete this feedback?</h3>
@@ -32,9 +36,50 @@
             @Html.DisplayFor(model => model.SubmissionDate)
         </dd>
     </dl>
-    <form asp-action="Delete" method="post">
-        <input type="hidden" asp-for="FeedbackId" />
-        <button type="submit" class="btn btn-danger">Delete</button>
-        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-light" })
+    <form id="deleteForm">
+        @Html.AntiForgeryToken()
+        <button id="deleteButton" class="btn btn-danger">Delete</button>
+        <a href="#" id="backToList" class="btn btn-light">Back to List</a>
     </form>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#deleteButton').click(function () {
+                if (confirm("Are you sure you want to delete this feedback?")) {
+                    deleteFeedback();
+                }
+            });
+
+            function deleteFeedback() {
+                var feedbackId = @Json.Serialize(Model.FeedbackId); // Serialize the feedback ID
+                var token = $('input[name="__RequestVerificationToken"]').val(); // Get the antiforgery token value
+
+                $.ajax({
+                    url: '@Url.Action("DeleteConfirmed", "Feedback")',
+                    type: 'POST',
+                    data: { id: feedbackId },
+                    headers: {
+                        RequestVerificationToken: token // Include the antiforgery token in the headers
+                    },
+                    success: function (response) {
+                        // Handle success response, if needed
+                        console.log(response);
+                        // Redirect back to the list page
+                        window.location.href = '@Url.Action("Index", "Feedback")';
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle error response
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+
+            $('#backToList').click(function () {
+                // Redirect back to the list page
+                window.location.href = '@Url.Action("Index", "Feedback")';
+            });
+        });
+    </script>
+}

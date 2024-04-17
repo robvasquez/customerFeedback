@@ -1,8 +1,12 @@
 @model CustomerFeedbackSystem.Models.Feedback
 
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
 <h2>Create New Feedback</h2>
 
-@using (Html.BeginForm("Create", "Feedback", FormMethod.Post))
+@using (Html.BeginForm("Create", "Feedback", FormMethod.Post, new { id = "feedbackForm" }))
 {
     @Html.AntiForgeryToken() <!-- Add anti-forgery token to prevent CSRF -->
     
@@ -22,9 +26,44 @@
         <label asp-for="SubmissionDate"></label>
         <input asp-for="SubmissionDate" class="form-control" type="date" />
     </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="button" id="submitButton" class="btn btn-primary">Submit</button>
 }
 
 <div>
     @Html.ActionLink("Back to List", "Index")
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#submitButton').click(function () {
+                if ($('#feedbackForm')[0].checkValidity()) {
+                    submitFeedback();
+                } else {
+                    $('#feedbackForm')[0].reportValidity();
+                }
+            });
+        });
+
+        function submitFeedback() {
+            var formData = $('#feedbackForm').serialize();
+            $.ajax({
+                url: '@Url.Action("Create", "Feedback")',
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    // Update feedback list without reloading the page
+                    // Here you the response could be handle as needed, e.g., show a success message
+                    console.log(response);
+                    
+                    // Redirect back to the previous page
+                    window.history.back();
+                },
+                error: function (xhr, status, error) {
+                    // Handle error
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+    </script>
+}
