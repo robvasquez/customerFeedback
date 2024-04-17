@@ -1,0 +1,31 @@
+@model CustomerFeedbackSystem.Models.Feedback
+
+<h2>Edit Feedback</h2>
+
+<form asp-action="Edit" asp-controller="Feedback" asp-route-id="@Model.FeedbackId" method="post">
+    @Html.AntiForgeryToken() <!-- Add anti-forgery token to prevent CSRF -->
+    
+    <input type="hidden" asp-for="FeedbackId" />
+
+    <div class="form-group">
+        <label asp-for="CustomerName"></label>
+        <input asp-for="CustomerName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Category"></label>
+        <input asp-for="Category" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+        <label asp-for="SubmissionDate"></label>
+        <input asp-for="SubmissionDate" class="form-control" type="date" />
+    </div>
+    <button type="submit" class="btn btn-success">Save</button>
+</form>
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>

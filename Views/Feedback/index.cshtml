@@ -1,0 +1,36 @@
+@model IEnumerable<CustomerFeedbackSystem.ViewModels.FeedbackViewModel>
+
+<h2>Feedback List</h2>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Customer Name</th>
+        <th>Category</th>
+        <th>Description</th>
+        <th>Submission Date</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@Html.DisplayFor(modelItem => item.CustomerName)</td>
+            <td>@Html.DisplayFor(modelItem => item.Category)</td>
+            <td>@Html.DisplayFor(modelItem => item.Description)</td>
+            <!-- Ensure that the date format is handled in the ViewModel or controller, not here -->
+            <td>@Html.DisplayFor(modelItem => item.FormattedDate)</td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id=item.FeedbackId }) |
+                @Html.ActionLink("Details", "Details", new { id=item.FeedbackId }) |
+                @Html.ActionLink("Delete", "Delete", new { id=item.FeedbackId })
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
