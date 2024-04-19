@@ -3,9 +3,11 @@ using CustomerFeedbackSystem.Repositories;
 using CustomerFeedbackSystem.Models;
 using System.Threading.Tasks;
 using CustomerFeedbackSystem.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CustomerFeedbackSystem.Controllers
 {
+    [Authorize]
     public class FeedbackController : Controller
     {
         private readonly IFeedbackRepository _repository;
@@ -17,6 +19,10 @@ namespace CustomerFeedbackSystem.Controllers
 
         public async Task<IActionResult> Index()
         {
+            
+            
+            
+            
             var feedbacks = await _repository.GetAllFeedbacks();
             var feedbackViewModels = feedbacks.Select(f => new FeedbackViewModel
             {
