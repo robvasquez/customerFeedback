@@ -19,10 +19,6 @@ namespace CustomerFeedbackSystem.Controllers
 
         public async Task<IActionResult> Index()
         {
-            
-            
-            
-            
             var feedbacks = await _repository.GetAllFeedbacks();
             var feedbackViewModels = feedbacks.Select(f => new FeedbackViewModel
             {
@@ -110,6 +106,7 @@ namespace CustomerFeedbackSystem.Controllers
             return View(feedback);
         }
         
+        // GET: Feedback/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -125,8 +122,8 @@ namespace CustomerFeedbackSystem.Controllers
             return View(feedback);
         }
 
-        // POST: Feedback/Delete/5
-        [HttpPost]
+        // POST: Feedback/DeleteConfirmed/5
+        [HttpPost, ActionName("DeleteConfirmed")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {

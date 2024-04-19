@@ -9,7 +9,7 @@
 @using (Html.BeginForm("Create", "Feedback", FormMethod.Post, new { id = "feedbackForm" }))
 {
     @Html.AntiForgeryToken() <!-- Add anti-forgery token to prevent CSRF -->
-    
+
     <div class="form-group">
         <label asp-for="CustomerName"></label>
         <input asp-for="CustomerName" class="form-control" />
@@ -29,8 +29,12 @@
     <button type="button" id="submitButton" class="btn btn-primary">Submit</button>
 }
 
+<div id="loadingSpinner" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1050;">
+    <div class="spinner"></div>
+</div>
+
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-secondary" })
 </div>
 
 @section Scripts {
@@ -38,6 +42,7 @@
         $(document).ready(function () {
             $('#submitButton').click(function () {
                 if ($('#feedbackForm')[0].checkValidity()) {
+                    $('#loadingSpinner').show(); // Show spinner
                     submitFeedback();
                 } else {
                     $('#feedbackForm')[0].reportValidity();
@@ -52,16 +57,30 @@
                 type: 'POST',
                 data: formData,
                 success: function (response) {
-                    // Update feedback list without reloading the page
-                    // Here you the response could be handle as needed, e.g., show a success message
-                    console.log(response);
-                    
-                    // Redirect back to the previous page
-                    window.history.back();
+                    $('#loadingSpinner').hide(); // Hide spinner
+                    Toastify({
+                        text: "Feedback submitted successfully!",
+                        backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+                        className: "info",
+                        position: "center",
+                        close: true,
+                        duration: 5000
+                    }).showToast();
+
+                    setTimeout(function() {
+                        window.location.href = '@Url.Action("Index", "Feedback")';
+                    }, 3000); // Redirect after showing toast
                 },
-                error: function (xhr, status, error) {
-                    // Handle error
-                    console.error(xhr.responseText);
+                error: function (xhr) {
+                    $('#loadingSpinner').hide(); // Hide spinner
+                    Toastify({
+                        text: "Error submitting feedback: " + xhr.responseText,
+                        backgroundColor: "linear-gradient(to right, #ff5f5f, #d62929)",
+                        className: "info",
+                        position: "center",
+                        close: true,
+                        duration: 5000
+                    }).showToast();
                 }
             });
         }
