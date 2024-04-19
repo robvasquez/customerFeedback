@@ -1,14 +1,17 @@
+using CustomerFeedbackSystem;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
-using CustomerFeedbackSystem;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using CustomerFeedbackSystem.Data;
+using CustomerFeedbackSystem.Repositories;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Instead of configuring services here, use the Startup class.
+// Optionally keep using the Startup class if it helps organize configuration
 var startup = new Startup(builder.Configuration);
 startup.ConfigureServices(builder.Services);
-
 
 var app = builder.Build();
 

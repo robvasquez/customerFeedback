@@ -1,11 +1,9 @@
 using CustomerFeedbackSystem.Data;
-using CustomerFeedbackSystem.Repositories;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using CustomerFeedbackSystem.Repositories;
 
 namespace CustomerFeedbackSystem
 {
@@ -20,12 +18,15 @@ namespace CustomerFeedbackSystem
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMemoryCache(); // Adds a default in-memory implementation of IDistributedCache
+            services.AddMemoryCache();
             services.AddControllersWithViews();
             
             services.AddDbContext<FeedbackContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             
+            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddEntityFrameworkStores<FeedbackContext>();
+
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
         }
 
@@ -46,11 +47,13 @@ namespace CustomerFeedbackSystem
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+            app.MapRazorPages();
         }
     }
 }
