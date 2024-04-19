@@ -4,6 +4,7 @@ using CustomerFeedbackSystem.Models;
 using System.Threading.Tasks;
 using CustomerFeedbackSystem.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CustomerFeedbackSystem.Controllers
 {
@@ -11,23 +12,36 @@ namespace CustomerFeedbackSystem.Controllers
     public class FeedbackController : Controller
     {
         private readonly IFeedbackRepository _repository;
+        private readonly IMemoryCache _memoryCache;
 
-        public FeedbackController(IFeedbackRepository repository)
+        public FeedbackController(IFeedbackRepository repository, IMemoryCache memoryCache)
         {
             _repository = repository;
+            _memoryCache = memoryCache;
         }
 
         public async Task<IActionResult> Index()
         {
-            var feedbacks = await _repository.GetAllFeedbacks();
-            var feedbackViewModels = feedbacks.Select(f => new FeedbackViewModel
+            string cacheKey = "feedbackList";
+            if (!_memoryCache.TryGetValue(cacheKey, out List<FeedbackViewModel> feedbackViewModels))
             {
-                FeedbackId = f.FeedbackId,  // Ensuring FeedbackId is assigned
-                CustomerName = f.CustomerName,
-                Category = f.Category,
-                Description = f.Description,
-                FormattedDate = f.SubmissionDate.ToString("MM/dd/yyyy")  // Consider moving formatting to the repository or service layer
-            }).ToList();
+                var feedbacks = await _repository.GetAllFeedbacks();
+                feedbackViewModels = feedbacks.Select(f => new FeedbackViewModel
+                {
+                    FeedbackId = f.FeedbackId,
+                    CustomerName = f.CustomerName,
+                    Category = f.Category,
+                    Description = f.Description,
+                    FormattedDate = f.SubmissionDate.ToString("MM/dd/yyyy")
+                }).ToList();
+
+                // Set cache options
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(5)) // Cache data for 5 minutes
+                    .SetAbsoluteExpiration(TimeSpan.FromHours(1)); // Absolute expiration time of 1 hour
+
+                _memoryCache.Set(cacheKey, feedbackViewModels, cacheEntryOptions);
+            }
 
             return View(feedbackViewModels);
         }
@@ -46,6 +60,7 @@ namespace CustomerFeedbackSystem.Controllers
             if (ModelState.IsValid)
             {
                 await _repository.AddFeedback(feedback);
+                _memoryCache.Remove("feedbackList"); // Invalidate the cache
                 return RedirectToAction(nameof(Index));
             }
             return View(feedback);
@@ -83,6 +98,7 @@ namespace CustomerFeedbackSystem.Controllers
             if (ModelState.IsValid)
             {
                 await _repository.UpdateFeedback(feedback);
+                _memoryCache.Remove("feedbackList"); // Invalidate the cache
                 return RedirectToAction(nameof(Index));
             }
 
@@ -128,6 +144,7 @@ namespace CustomerFeedbackSystem.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _repository.DeleteFeedback(id);
+            _memoryCache.Remove("feedbackList"); // Invalidate the cache
             return RedirectToAction(nameof(Index));
         }
     }
