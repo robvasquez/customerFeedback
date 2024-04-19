@@ -30,6 +30,10 @@
     <button type="button" id="saveButton" class="btn btn-success">Save</button>
 </form>
 
+<div id="loadingSpinner" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1050;">
+    <div class="spinner"></div>
+</div>
+
 <div>
     <a href="@Url.Action("Index", "Feedback")" class="btn btn-secondary">Back to List</a>
 </div>
@@ -38,7 +42,12 @@
     <script>
         $(document).ready(function () {
             $('#saveButton').click(function () {
-                saveFeedback();
+                if ($('#editFeedbackForm')[0].checkValidity()) {
+                    $('#loadingSpinner').show(); // Show the spinner
+                    saveFeedback();
+                } else {
+                    $('#editFeedbackForm')[0].reportValidity();
+                }
             });
 
             function saveFeedback() {
@@ -48,14 +57,29 @@
                     type: 'POST',
                     data: formData,
                     success: function (response) {
-                        // Handle success response, if needed
-                        console.log(response);
-                        // Redirect back to the list page
-                        window.location.href = '@Url.Action("Index", "Feedback")';
+                        $('#loadingSpinner').hide(); // Hide the spinner
+                        Toastify({
+                            text: "Feedback updated successfully!",
+                            backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+                            className: "info",
+                            position: "center",
+                            close: true,
+                            duration: 5000
+                        }).showToast();
+                        setTimeout(function() {
+                            window.location.href = '@Url.Action("Index", "Feedback")'; // Redirect to the feedback list
+                        }, 3000); // Delay redirection to allow users to read the toast message
                     },
-                    error: function (xhr, status, error) {
-                        // Handle error response
-                        console.error(xhr.responseText);
+                    error: function (xhr) {
+                        $('#loadingSpinner').hide(); // Hide the spinner
+                        Toastify({
+                            text: "Error updating feedback: " + xhr.responseText,
+                            backgroundColor: "linear-gradient(to right, #ff5f5f, #d62929)",
+                            className: "info",
+                            position: "center",
+                            close: true,
+                            duration: 5000
+                        }).showToast();
                     }
                 });
             }
