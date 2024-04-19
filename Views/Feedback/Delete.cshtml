@@ -38,9 +38,14 @@
     </dl>
     <form id="deleteForm">
         @Html.AntiForgeryToken()
-        <button id="deleteButton" class="btn btn-danger">Delete</button>
-        <a href="#" id="backToList" class="btn btn-light">Back to List</a>
+        <input type="hidden" name="feedbackId" value="@Model.FeedbackId" />
+        <button type="button" id="deleteButton" class="btn btn-danger">Delete</button>
+        <a href="@Url.Action("Index", "Feedback")" class="btn btn-light">Back to List</a>
     </form>
+</div>
+
+<div id="loadingSpinner" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1050;">
+    <div class="spinner"></div>
 </div>
 
 @section Scripts {
@@ -48,38 +53,49 @@
         $(document).ready(function () {
             $('#deleteButton').click(function () {
                 if (confirm("Are you sure you want to delete this feedback?")) {
+                    $('#loadingSpinner').show(); // Show the spinner
                     deleteFeedback();
                 }
             });
 
             function deleteFeedback() {
-                var feedbackId = @Json.Serialize(Model.FeedbackId); // Serialize the feedback ID
-                var token = $('input[name="__RequestVerificationToken"]').val(); // Get the antiforgery token value
+                var feedbackId = $('input[name="feedbackId"]').val(); // Get feedback ID from hidden input
+                var token = $('input[name="__RequestVerificationToken"]').val(); // Get the antiforgery token
 
                 $.ajax({
                     url: '@Url.Action("DeleteConfirmed", "Feedback")',
                     type: 'POST',
-                    data: { id: feedbackId },
-                    headers: {
-                        RequestVerificationToken: token // Include the antiforgery token in the headers
+                    data: {
+                        id: feedbackId,
+                        __RequestVerificationToken: token
                     },
                     success: function (response) {
-                        // Handle success response, if needed
-                        console.log(response);
-                        // Redirect back to the list page
-                        window.location.href = '@Url.Action("Index", "Feedback")';
+                        $('#loadingSpinner').hide(); // Hide the spinner
+                        Toastify({
+                            text: "Feedback deleted successfully!",
+                            backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+                            className: "info",
+                            position: "center",
+                            close: true,
+                            duration: 3000
+                        }).showToast();
+                        setTimeout(function () {
+                            window.location.href = '@Url.Action("Index", "Feedback")'; // Redirect to the Feedback list page
+                        }, 3000); // Delay redirection to allow the user to read the toast message
                     },
-                    error: function (xhr, status, error) {
-                        // Handle error response
-                        console.error(xhr.responseText);
+                    error: function (xhr) {
+                        $('#loadingSpinner').hide(); // Hide the spinner
+                        Toastify({
+                            text: "Error deleting feedback: " + xhr.responseText,
+                            backgroundColor: "linear-gradient(to right, #ff5f5f, #d62929)",
+                            className: "info",
+                            position: "center",
+                            close: true,
+                            duration: 5000
+                        }).showToast();
                     }
                 });
             }
-
-            $('#backToList').click(function () {
-                // Redirect back to the list page
-                window.location.href = '@Url.Action("Index", "Feedback")';
-            });
         });
     </script>
 }

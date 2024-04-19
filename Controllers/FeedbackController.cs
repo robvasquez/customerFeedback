@@ -3,9 +3,11 @@ using CustomerFeedbackSystem.Repositories;
 using CustomerFeedbackSystem.Models;
 using System.Threading.Tasks;
 using CustomerFeedbackSystem.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CustomerFeedbackSystem.Controllers
 {
+    [Authorize]
     public class FeedbackController : Controller
     {
         private readonly IFeedbackRepository _repository;
@@ -104,6 +106,7 @@ namespace CustomerFeedbackSystem.Controllers
             return View(feedback);
         }
         
+        // GET: Feedback/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -119,8 +122,8 @@ namespace CustomerFeedbackSystem.Controllers
             return View(feedback);
         }
 
-        // POST: Feedback/Delete/5
-        [HttpPost]
+        // POST: Feedback/DeleteConfirmed/5
+        [HttpPost, ActionName("DeleteConfirmed")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
