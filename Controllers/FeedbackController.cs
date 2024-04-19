@@ -110,7 +110,6 @@ namespace CustomerFeedbackSystem.Controllers
             return View(feedback);
         }
         
-        // GET: Feedback/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -127,7 +126,7 @@ namespace CustomerFeedbackSystem.Controllers
         }
 
         // POST: Feedback/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
